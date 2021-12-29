@@ -1,4 +1,5 @@
 from main import db
+from passlib.hash import sha256_crypt
 
 class Users(db.Model):
     __tablename__ = 'users'
@@ -40,8 +41,16 @@ class FriendsRequest(db.Model):
         self.friend1id = friend1id
         self.friend2id = friend2id
 
-def addNewUser(name, surname, email, password):
-    newUser = Users(name, surname, email, password)
-    db.session.add(newUser)
-    db.session.commit()
+#def checkCredentials(email, password):
+
+def registerNewUser(name, surname, email, password):
+    if db.session.query(db.exists().where(Users.email==email)).scalar():
+        return False
+    else:
+        passwordHash = sha256_crypt.encrypt(password)
+
+        newUser = Users(name, surname, email, passwordHash)
+        db.session.add(newUser)
+        db.session.commit()
+        return True
 
