@@ -41,10 +41,18 @@ class FriendsRequest(db.Model):
         self.friend1id = friend1id
         self.friend2id = friend2id
 
-#def checkCredentials(email, password):
+def checkCredentials(email, password):
+    if db.session.query(db.exists().where(Users.email == email)).scalar():
+        passwordDatabase = db.session.query(Users.password).where(Users.email == email).scalar()
+        if(sha256_crypt.verify(password, passwordDatabase)):
+            return True
+        else:
+            return False
+    else:
+        return False
 
 def registerNewUser(name, surname, email, password):
-    if db.session.query(db.exists().where(Users.email==email)).scalar():
+    if db.session.query(db.exists().where(Users.email == email)).scalar():
         return False
     else:
         passwordHash = sha256_crypt.encrypt(password)
