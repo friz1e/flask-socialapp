@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, request
+from flask import Blueprint, render_template, url_for, request, redirect
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
@@ -38,11 +38,11 @@ def registerUser():
 
         from models import registerNewUser
         if(registerNewUser(name,surname,email,password)):
-           return render_template(url_for('routes.loginPage'))
+           return redirect(url_for('routes.loginPage'))
         else:
             return render_template('registerPage.html', error="User with given email already exists!")
     else:
-        return render_template(url_for('routes.registerPage'))
+        return redirect(url_for('routes.registerPage'))
 
 @routes.route('/checkCredentials', methods=['POST', 'GET'])
 def checkCredentials():
@@ -57,9 +57,9 @@ def checkCredentials():
         else:
             from models import checkCredentials
             if(checkCredentials(email, password)):
-                return render_template(url_for('routes.mainPage'))
+                return redirect(url_for('routes.mainPage'))
             else:
-                return render_template(url_for('routes.loginPage'))
+                return redirect(url_for('routes.loginPage'))
 
     else:
-        return render_template(url_for('routes.loginPage'))
+        return redirect(url_for('routes.loginPage'))
