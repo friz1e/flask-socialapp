@@ -15,7 +15,11 @@ class Users(db.Model):
     email = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.now(), nullable=False)
-    friends = db.relationship('Users', secondary=friends, backref=db.backref('friends', lazy='dynamic'))
+    friends = db.relationship('Users',
+                              secondary=friends,
+                              primaryjoin = (friends.c.user1_id == id),
+                              secondaryjoin = (friends.c.user2_id == id),
+                              lazy='dynamic')
     posts = db.relationship('Posts', backref="user")
 
     def __init__(self, name, surname, email, password):
@@ -58,5 +62,3 @@ def addPost(email, content):
     newPost = Posts(content = content, user = loggedUser)
     db.session.add(newPost)
     db.session.commit()
-
-db.create_all()
