@@ -1,6 +1,11 @@
 from main import db
 from passlib.hash import sha256_crypt
 
+friends = db.Table('friends',
+                db.Column('user1_id', db.Integer, db.ForeignKey('users.id')),
+                db.Column('user2_id', db.Integer, db.ForeignKey('users.id'))
+)
+
 class Users(db.Model):
     __tablename__ = 'users'
 
@@ -10,6 +15,7 @@ class Users(db.Model):
     email = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.now(), nullable=False)
+    friends = db.relationship('Users', secondary=friends, backref=db.backref('friends', lazy='dynamic'))
     posts = db.relationship('Posts', backref="user")
 
     def __init__(self, name, surname, email, password):
@@ -52,3 +58,5 @@ def addPost(email, content):
     newPost = Posts(content = content, user = loggedUser)
     db.session.add(newPost)
     db.session.commit()
+
+db.create_all()
