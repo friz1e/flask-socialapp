@@ -83,3 +83,17 @@ def checkCredentials():
 def logout():
     session.pop('email', None)
     return redirect(url_for('routes.loginPage'))
+
+@routes.route('/addPost', methods=['POST', 'GET'])
+def addPost():
+    if session.get('email') != None:
+        if request.method == 'POST':
+            content = request.form['content']
+
+            from models import addPost
+            addPost(session.get('email'), content)
+            return redirect(url_for('routes.mainPage'))
+        else:
+            return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.loginPage'))
