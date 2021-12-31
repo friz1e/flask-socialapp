@@ -19,7 +19,7 @@ class Users(db.Model):
                               secondary=friends,
                               primaryjoin = (friends.c.user1_id == id),
                               secondaryjoin = (friends.c.user2_id == id),
-                              lazy='dynamic')
+                              lazy='dynamic',)
     posts = db.relationship('Posts', backref="user")
 
     def __init__(self, name, surname, email, password):
@@ -62,3 +62,10 @@ def addPost(email, content):
     newPost = Posts(content = content, user = loggedUser)
     db.session.add(newPost)
     db.session.commit()
+
+def addFriend(email, id):
+    loggedUser = Users.query.filter_by(email = email).first()
+    userToBeAdded = Users.query.get(id).first()
+
+    loggedUser.friends.append(userToBeAdded)
+    userToBeAdded.friends.append(loggedUser)
