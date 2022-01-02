@@ -97,12 +97,15 @@ def acceptFriendsRequest(email, id):
     loggedUser = Users.query.filter_by(email=email).first()
     userToBeAdded = Users.query.get(id)
     if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,user2_id=userToBeAdded.id).first() is None:
-        addFriend(email, id)
-        db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).delete()
-        db.session.query(friends_requests).filter_by(user1_id=userToBeAdded.id, user2_id=loggedUser.id).delete()
+        if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).first() is not None:
+            addFriend(email, id)
+            db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).delete()
+            db.session.query(friends_requests).filter_by(user1_id=userToBeAdded.id, user2_id=loggedUser.id).delete()
 
-        db.session.commit()
-        return True
+            db.session.commit()
+            return True
+        else:
+            return False
     else:
         return False
 
@@ -110,10 +113,13 @@ def declineFriendsRequest(email, id):
     loggedUser = Users.query.filter_by(email=email).first()
     userToBeAdded = Users.query.get(id)
     if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,user2_id=userToBeAdded.id).first() is None:
-        db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).delete()
-        db.session.query(friends_requests).filter_by(user1_id=userToBeAdded.id, user2_id=loggedUser.id).delete()
-        db.session.commit()
-        return True
+        if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).first() is not None:
+            db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).delete()
+            db.session.query(friends_requests).filter_by(user1_id=userToBeAdded.id, user2_id=loggedUser.id).delete()
+            db.session.commit()
+            return True
+        else:
+            return False
     else:
         return False
 

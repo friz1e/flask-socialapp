@@ -98,14 +98,11 @@ def addPost():
     else:
         return redirect(url_for('routes.loginPage'))
 
-@routes.route('/addFriend/<id>', methods=['GET'])
-def addFriend(id):
+@routes.route('/sendFriendsRequest/<id>')
+def sendFriendsRequest(id):
     if session.get('email') != None:
-        if request.method == 'GET':
-            from models import addFriend
-            addFriend(session.get('email'), id)
-            return redirect(url_for('routes.mainPage'))
-        else:
+            from models import sendFriendsRequest
+            sendFriendsRequest(session.get('email'), id)
             return redirect(url_for('routes.mainPage'))
     else:
         return redirect(url_for('routes.loginPage'))
@@ -113,18 +110,32 @@ def addFriend(id):
 @routes.route('/acceptFriendsRequest/<id>', methods=['GET'])
 def acceptFriendsRequest(id):
     if session.get('email') != None:
-        if request.method == 'GET':
-            from models import addFriend
-            addFriend(session.get('email'), id)
+        from models import acceptFriendsRequest
+        try:
+            if acceptFriendsRequest(session.get('email'), id):
+                addFriend(session.get('email'), id)
+                return redirect(url_for('routes.mainPage'))
+        except TypeError:
+            return redirect(url_for('routes.mainPage'))
+        else:
+            return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.mainPage'))
+
+
+@routes.route('/declineFriendsRequest/<id>', methods=['GET'])
+def declineFriendsRequest(id):
+    if session.get('email') != None:
+        from models import declineFriendsRequest
+        if declineFriendsRequest(session.get('email'), id):
             return redirect(url_for('routes.mainPage'))
         else:
             return redirect(url_for('routes.mainPage'))
     else:
         return redirect(url_for('routes.loginPage'))
 
-
-@routes.route('/declineFriendsRequest/<id>', methods=['GET'])
-def declineFriendsRequest(id):
+@routes.route('/addFriend/<id>', methods=['GET'])
+def addFriend(id):
     if session.get('email') != None:
         if request.method == 'GET':
             from models import addFriend
