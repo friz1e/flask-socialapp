@@ -97,3 +97,40 @@ def addPost():
             return redirect(url_for('routes.mainPage'))
     else:
         return redirect(url_for('routes.loginPage'))
+
+@routes.route('/addFriend/<id>', methods=['GET'])
+def addFriend(id):
+    if session.get('email') != None:
+        if request.method == 'GET':
+            from models import addFriend
+            addFriend(session.get('email'), id)
+            return redirect(url_for('routes.mainPage'))
+        else:
+            return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.loginPage'))
+
+@routes.route('/acceptFriendsRequest/<id>', methods=['GET'])
+def acceptFriendsRequest(id):
+    if session.get('email') != None:
+        if request.method == 'GET':
+            from models import addFriend
+            addFriend(session.get('email'), id)
+            return redirect(url_for('routes.mainPage'))
+        else:
+            return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.loginPage'))
+
+
+@routes.route('/declineFriendsRequest/<id>', methods=['GET'])
+def declineFriendsRequest(id):
+    if session.get('email') != None:
+        if request.method == 'GET':
+            from models import addFriend
+            addFriend(session.get('email'), id)
+            return redirect(url_for('routes.mainPage'))
+        else:
+            return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.loginPage'))
