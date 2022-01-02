@@ -135,3 +135,12 @@ def addFriend(email, id):
     userToBeAdded.friends.append(loggedUser)
 
     db.session.commit()
+
+def deleteFriend(email, id):
+    loggedUser = Users.query.filter_by(email = email).first()
+    userToBeAdded = Users.query.get(id)
+
+    loggedUser.friends.remove(userToBeAdded)
+    userToBeAdded.friends.remove(loggedUser)
+
+    db.session.commit()
