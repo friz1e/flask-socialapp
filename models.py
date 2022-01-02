@@ -69,6 +69,10 @@ def registerNewUser(name, surname, email, password):
         db.session.commit()
         return True
 
+def getUser(email):
+    user = Users.query.filter_by(email = email).first()
+    return user
+
 def addPost(email, content):
     loggedUser = Users.query.filter_by(email = email).first()
     newPost = Posts(content = content, user = loggedUser)
