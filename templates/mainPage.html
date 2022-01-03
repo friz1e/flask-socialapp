@@ -14,12 +14,19 @@
     {{friend_request.name}} {{friend_request.surname}} </br>
     <a href="{{ url_for('routes.acceptFriendsRequest', id = friend_request.id) }}">Accept</a>
     <a href="{{ url_for('routes.declineFriendsRequest', id = friend_request.id) }}">Decline</a>
-    </br>
+    </br> </br>
     {% endfor %}
     <h3>Your friends:</h3>
     {% for friend in friends %}
     {{friend.name}} {{friend.surname}} </br>
     <a href="{{ url_for('routes.deleteFriend', id = friend.id) }}">Delete</a>
+    </br> </br>
+    {% endfor %}
+    <h3>Friends propositions:</h3>
+    {% for friend_proposition in friends_propositions %}
+    {{friend_proposition.name}} {{friend_proposition.surname}} </br>
+    <a href="{{ url_for('routes.sendFriendsRequest', id = friend_proposition.id) }}">Send a request</a>
+    </br> </br>
     {% endfor %}
     <h3><a href="{{ url_for('routes.logout') }}">Logout!</a></h3>
 
