@@ -19,11 +19,12 @@ def registerPage():
 @routes.route('/mainPage')
 def mainPage():
     if session.get('email') != None:
-        from models import getUser
+        from models import getUser, getFriendsProposition
 
         user = getUser(session.get('email'))
+        friendsPropositions = getFriendsProposition(session.get('email'))
 
-        return render_template('mainPage.html', friends = user.friends, friends_requests = user.friends_requests)
+        return render_template('mainPage.html', friends = user.friends, friends_requests = user.friends_requests, friends_propositions = friendsPropositions)
     else:
         return redirect(url_for('routes.loginPage'))
 
