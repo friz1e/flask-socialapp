@@ -144,3 +144,15 @@ def deleteFriend(email, id):
     userToBeAdded.friends.remove(loggedUser)
 
     db.session.commit()
+
+def getFriendsProposition(email):
+    loggedUser = Users.query.filter_by(email=email).first()
+    propositions = db.session.query(friends).filter(db.and_(friends.c.user1_id != loggedUser.id, friends.c.user2_id != loggedUser.id)).all()
+    idsList = []
+    for i in range(len(propositions)):
+        idsList.append(propositions[i].user1_id)
+    userObjectsList = []
+    for i in range(len(idsList)):
+        userObjectsList.append(Users.query.filter_by(id = idsList[i]).first())
+
+    return userObjectsList
