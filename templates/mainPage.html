@@ -9,29 +9,36 @@
          <p>Post content: <input type = "text" name = "content" style="width: 200px; height: 100px;"/></p>
          <p><input type = "submit" value = "submit" /></p>
          </br>
+
     <h3>Your pending friends requests:</h3>
     {% for pending_friend_request in pending_friends_requests %}
-     {{pending_friend_request.name}} {{pending_friend_request.surname}} </br>
+    {{pending_friend_request.name}} {{pending_friend_request.surname}} </br>
     Pending..  <a href="{{ url_for('routes.declineFriendsRequest', id = pending_friend_request.id) }}">Cancel</a>
     </br> </br>
+    {% endfor %}
 
-     <h3>Your sent friends requests:</h3>
+    <h3>Friends requests from other users:</h3>
+    {% for sent_friend_request in sent_friends_requests %}
     {{sent_friend_request.name}} {{sent_friend_request.surname}} </br>
-    <a href="{{ url_for('routes.acceptFriendsRequest', id = friend_request.id) }}">Accept</a>
-    <a href="{{ url_for('routes.declineFriendsRequest', id = friend_request.id) }}">Decline</a>
+    <a href="{{ url_for('routes.acceptFriendsRequest', id = sent_friend_request.id) }}">Accept</a>
+    <a href="{{ url_for('routes.declineFriendsRequest', id = sent_friend_request.id) }}"> Decline</a>
+    </br> </br>
+    {% endfor %}
 
     <h3>Your friends:</h3>
     {% for friend in friends %}
     {{friend.name}} {{friend.surname}} </br>
     <a href="{{ url_for('routes.deleteFriend', id = friend.id) }}">Delete</a>
-    </br> </br>
+    </br>
     {% endfor %}
+
     <h3>Friends propositions:</h3>
     {% for friend_proposition in friends_propositions %}
     {{friend_proposition.name}} {{friend_proposition.surname}} </br>
     <a href="{{ url_for('routes.sendFriendsRequest', id = friend_proposition.id) }}">Send a request</a>
     </br> </br>
     {% endfor %}
+
     <h3><a href="{{ url_for('routes.logout') }}">Logout!</a></h3>
 
 </form>
