@@ -191,3 +191,19 @@ def getPendingRequestsToShow(email):
 
     return userObjectsList
 
+def getSentRequestsToShow(email):
+    query = db.session.query(friends_requests.c.user2_id).filter((friends_requests.c.sent_by != email) & (friends_requests.c.user1_id == getUserId(email))).all()
+
+    db.session.commit()
+
+    idsList = []
+
+    for i in range(len(query)):
+        idsList.append(query[i].user2_id)
+
+    userObjectsList = []
+
+    for i in range(len(idsList)):
+        userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
+
+    return userObjectsList
