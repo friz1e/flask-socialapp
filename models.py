@@ -70,6 +70,10 @@ def registerNewUser(name, surname, email, password):
         db.session.commit()
         return True
 
+def getUserId(email):
+    user = Users.query.filter_by(email=email).first()
+    return user.id
+
 def getUser(email):
     user = Users.query.filter_by(email = email).first()
     return user
@@ -148,10 +152,13 @@ def deleteFriend(email, id):
 
     db.session.commit()
 
-def getFriendsProposition(email):
+def getFriendsPropositions(email):
     loggedUser = Users.query.filter_by(email=email).first()
+
     idsList = []
+
     users = db.session.query(Users).filter(Users.id != loggedUser.id).all()
+
     for i in range(len(users)):
         idsList.append(users[i].id)
 
@@ -168,4 +175,19 @@ def getFriendsProposition(email):
 
     return userObjectsList
 
+def getPendingRequestsToShow(email):
+    query = db.session.query(friends_requests.c.user2_id).filter((friends_requests.c.sent_by==email)&(friends_requests.c.user1_id==getUserId(email))).all()
+    db.session.commit()
+
+    idsList = []
+
+    for i in range(len(query)):
+        idsList.append(query[i].user2_id)
+
+    userObjectsList = []
+
+    for i in range(len(idsList)):
+        userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
+
+    return userObjectsList
 
