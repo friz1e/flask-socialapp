@@ -9,13 +9,17 @@
          <p>Post content: <input type = "text" name = "content" style="width: 200px; height: 100px;"/></p>
          <p><input type = "submit" value = "submit" /></p>
          </br>
-    <h3>Your friends requests:</h3>
-    {% for friend_request in friends_requests %}
-    {{friend_request.name}} {{friend_request.surname}} </br>
+    <h3>Your pending friends requests:</h3>
+    {% for pending_friend_request in pending_friends_requests %}
+     {{pending_friend_request.name}} {{pending_friend_request.surname}} </br>
+    Pending..  <a href="{{ url_for('routes.declineFriendsRequest', id = pending_friend_request.id) }}">Cancel</a>
+    </br> </br>
+
+     <h3>Your sent friends requests:</h3>
+    {{sent_friend_request.name}} {{sent_friend_request.surname}} </br>
     <a href="{{ url_for('routes.acceptFriendsRequest', id = friend_request.id) }}">Accept</a>
     <a href="{{ url_for('routes.declineFriendsRequest', id = friend_request.id) }}">Decline</a>
-    </br> </br>
-    {% endfor %}
+
     <h3>Your friends:</h3>
     {% for friend in friends %}
     {{friend.name}} {{friend.surname}} </br>
