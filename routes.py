@@ -19,7 +19,14 @@ def registerPage():
 @routes.route('/mainPage')
 def mainPage():
     if session.get('email') != None:
-        return render_template('mainPage.html')
+        from models import getUser, getFriendsPropositions, getPendingRequestsToShow, getSentRequestsToShow
+
+        user = getUser(session.get('email'))
+        friendsPropositions = getFriendsPropositions(session.get('email'))
+        friendsSentRequests = getSentRequestsToShow(session.get('email'))
+        friendsPendingRequests = getPendingRequestsToShow(session.get('email'))
+
+        return render_template('mainPage.html', friends = user.friends, pending_friends_requests = friendsPendingRequests, sent_friends_requests = friendsSentRequests, friends_propositions = friendsPropositions)
     else:
         return redirect(url_for('routes.loginPage'))
 
@@ -140,6 +147,18 @@ def addFriend(id):
         if request.method == 'GET':
             from models import addFriend
             addFriend(session.get('email'), id)
+            return redirect(url_for('routes.mainPage'))
+        else:
+            return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.loginPage'))
+
+@routes.route('/deleteFriend/<id>', methods=['GET'])
+def deleteFriend(id):
+    if session.get('email') != None:
+        if request.method == 'GET':
+            from models import deleteFriend
+            deleteFriend(session.get('email'), id)
             return redirect(url_for('routes.mainPage'))
         else:
             return redirect(url_for('routes.mainPage'))
