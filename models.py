@@ -10,6 +10,7 @@ friends = db.Table('friends',
 friends_requests = db.Table('friends_requests',
                 db.Column('user1_id', db.Integer, db.ForeignKey('users.id')),
                 db.Column('user2_id', db.Integer, db.ForeignKey('users.id')),
+                db.Column('sent_by', db.String),
                 db.Column('created_at', db.TIMESTAMP, server_default=db.func.now(), nullable=False)
 )
 
@@ -87,9 +88,11 @@ def sendFriendsRequest(email, id):
     else:
         if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userRequested.id).first() is None:
             if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userRequested.id).first() is None:
-                loggedUser.friends_requests.append(userRequested)
-                userRequested.friends_requests.append(loggedUser)
+                loggedUserRow = friends_requests.insert().values(user1_id = loggedUser.id, user2_id = userRequested.id, sent_by = email)
+                userRequestedRow = friends_requests.insert().values(user1_id = userRequested.id, user2_id = loggedUser.id, sent_by = email)
 
+                db.session.execute(loggedUserRow)
+                db.session.execute(userRequestedRow)
                 db.session.commit()
                 return True
             else:
@@ -147,12 +150,22 @@ def deleteFriend(email, id):
 
 def getFriendsProposition(email):
     loggedUser = Users.query.filter_by(email=email).first()
-    propositions = db.session.query(friends).filter(db.and_(friends.c.user1_id != loggedUser.id, friends.c.user2_id != loggedUser.id)).all()
     idsList = []
-    for i in range(len(propositions)):
-        idsList.append(propositions[i].user1_id)
+    users = db.session.query(Users).filter(Users.id != loggedUser.id).all()
+    for i in range(len(users)):
+        idsList.append(users[i].id)
+
+    import random
+    random.shuffle(idsList)
     userObjectsList = []
+
     for i in range(len(idsList)):
-        userObjectsList.append(Users.query.filter_by(id = idsList[i]).first())
+        if db.session.query(friends_requests).filter((friends_requests.c.user1_id == loggedUser.id) & (friends_requests.c.user2_id == idsList[i])).first() is None:
+            if db.session.query(friends).filter((friends.c.user1_id == loggedUser.id) & (friends.c.user2_id == idsList[i])).first() is None:
+                userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
+            else:
+                continue
 
     return userObjectsList
+
+
