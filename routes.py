@@ -25,7 +25,7 @@ def mainPage():
         friendsSentRequests = getRequestsToShow(session.get('email'), "sent")
         friendsPendingRequests = getRequestsToShow(session.get('email'), "pending")
 
-        return render_template('mainPage.html', friends = user.friends, pending_friends_requests = friendsPendingRequests, sent_friends_requests = friendsSentRequests, friends_propositions = friendsPropositions)
+        return render_template('mainPage.html', user = user, friends = user.friends, pending_friends_requests = friendsPendingRequests, sent_friends_requests = friendsSentRequests, friends_propositions = friendsPropositions)
     else:
         return redirect(url_for('routes.loginPage'))
 
@@ -104,7 +104,16 @@ def addPost():
     else:
         return redirect(url_for('routes.loginPage'))
 
-@routes.route('/sendFriendsRequest/<id>')
+@routes.route('/deletePost/<id>', methods=['GET'])
+def deletePost(id):
+    if session.get('email') != None:
+        from models import deletePost
+        deletePost(id)
+        return redirect(url_for('routes.mainPage'))
+    else:
+        return redirect(url_for('routes.mainPage'))
+
+@routes.route('/sendFriendsRequest/<id>', methods=['GET'])
 def sendFriendsRequest(id):
     if session.get('email') != None:
         from models import friendsRequestOperations
