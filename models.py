@@ -33,7 +33,7 @@ class Users(db.Model):
                               primaryjoin=(friends.c.user1_id == id),
                               secondaryjoin=(friends.c.user2_id == id),
                               lazy='dynamic')
-    posts = db.relationship('Posts', backref="user")
+    posts = db.relationship('Posts', backref='user', lazy='dynamic')
 
     def __init__(self, name, surname, email, password):
         self.name = name
@@ -84,6 +84,10 @@ def addPost(email, content):
     db.session.add(newPost)
     db.session.commit()
 
+def deletePost(id):
+    postToBeDeleted = Posts.query.filter_by(id=id).delete()
+    db.session.commit()
+
 def friendsRequestOperations(email, id, typeOfOperation):
     loggedUser = Users.query.filter_by(email=email).first()
     userOperationIsExecutedOn = Users.query.get(id)
@@ -93,10 +97,10 @@ def friendsRequestOperations(email, id, typeOfOperation):
             return False
         else:
             if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,
-                                                                                  user2_id=userOperationIsExecutedOn .id).first() is None:
+                                                                                  user2_id=userOperationIsExecutedOn.id).first() is None:
                 if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(
                         user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).first() is None:
-                    loggedUserRow = friends_requests.insert().values(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id,
+                    loggedUserRow = friends_requests.insert().values(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn.id,
                                                                      sent_by=email)
                     userRequestedRow = friends_requests.insert().values(user1_id=userOperationIsExecutedOn .id,
                                                                         user2_id=loggedUser.id, sent_by=email)
@@ -111,11 +115,11 @@ def friendsRequestOperations(email, id, typeOfOperation):
                 return False
     elif typeOfOperation == "accept":
         if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,
-                                                                              user2_id=userOperationIsExecutedOn .id).first() is None:
+                                                                              user2_id=userOperationIsExecutedOn.id).first() is None:
             if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(
                     user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).first() is not None:
                 addFriend(email, id)
-                db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).delete()
+                db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn.id).delete()
                 db.session.query(friends_requests).filter_by(user1_id=userOperationIsExecutedOn .id, user2_id=loggedUser.id).delete()
 
                 db.session.commit()
@@ -126,9 +130,9 @@ def friendsRequestOperations(email, id, typeOfOperation):
             return False
     elif typeOfOperation == "decline":
         if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,
-                                                                              user2_id=userOperationIsExecutedOn .id).first() is None:
+                                                                              user2_id=userOperationIsExecutedOn.id).first() is None:
             if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(
-                    user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).first() is not None:
+                    user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn.id).first() is not None:
                 db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn.id).delete()
                 db.session.query(friends_requests).filter_by(user1_id=userOperationIsExecutedOn .id, user2_id=loggedUser.id).delete()
                 db.session.commit()

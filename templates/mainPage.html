@@ -5,11 +5,13 @@
     <title>Main view</title>
 </head>
 <body>
-<br action = "http://localhost:5000/addPost" method = "POST">
+<div style="float: left">
+<h3>Flask-socialapp</h3>
+<form action = "http://localhost:5000/addPost" method = "POST">
          <p>Post content: <input type = "text" name = "content" style="width: 200px; height: 100px;"/></p>
          <p><input type = "submit" value = "submit" /></p>
-         </br>
-
+         </form>
+</br>
     <h3>Your pending friends requests:</h3>
     {% for pending_friend_request in pending_friends_requests %}
     {{pending_friend_request.name}} {{pending_friend_request.surname}} </br>
@@ -40,6 +42,28 @@
     {% endfor %}
 
     <h3><a href="{{ url_for('routes.logout') }}">Logout!</a></h3>
+    </div>
+    <div style="float:left; margin-left: 100px;">
+    <h2>Posts</h2>
+        {% for friend in friends %}
+        {% for i in range(friend.posts.count()) %}
+        <h4> {{ friend.name }} {{friend.surname}} </h4>
+        {{ friend.posts[i].created_at }} </br>
+        {{ friend.posts[i].content }}
+        {% endfor %}
+        {% endfor %}
+    </div>
+    <div style="float:left; margin-left: 100px;">
+    <h2>Your posts</h2>
+        {% for i in range(user.posts.count()) %}
+        <h4>You</h4>
+        {{ user.posts[i].created_at }} </br>
+        {{ user.posts[i].content }}
+        </br>
+        <a href="{{ url_for('routes.deletePost', id = user.posts[i].id) }}">Delete post</a>
+        {% endfor %}
+    </div>
+
 
 </form>
 </body>
