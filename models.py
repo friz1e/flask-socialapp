@@ -84,55 +84,61 @@ def addPost(email, content):
     db.session.add(newPost)
     db.session.commit()
 
-def sendFriendsRequest(email, id):
+def friendsRequestOperations(email, id, typeOfOperation):
     loggedUser = Users.query.filter_by(email=email).first()
-    userRequested = Users.query.get(id)
-    if loggedUser is None or userRequested is None:
-        return False
-    else:
-        if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userRequested.id).first() is None:
-            if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userRequested.id).first() is None:
-                loggedUserRow = friends_requests.insert().values(user1_id = loggedUser.id, user2_id = userRequested.id, sent_by = email)
-                userRequestedRow = friends_requests.insert().values(user1_id = userRequested.id, user2_id = loggedUser.id, sent_by = email)
+    userOperationIsExecutedOn = Users.query.get(id)
 
-                db.session.execute(loggedUserRow)
-                db.session.execute(userRequestedRow)
+    if typeOfOperation == "send":
+        if loggedUser is None or userOperationIsExecutedOn is None:
+            return False
+        else:
+            if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,
+                                                                                  user2_id=userOperationIsExecutedOn .id).first() is None:
+                if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(
+                        user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).first() is None:
+                    loggedUserRow = friends_requests.insert().values(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id,
+                                                                     sent_by=email)
+                    userRequestedRow = friends_requests.insert().values(user1_id=userOperationIsExecutedOn .id,
+                                                                        user2_id=loggedUser.id, sent_by=email)
+
+                    db.session.execute(loggedUserRow)
+                    db.session.execute(userRequestedRow)
+                    db.session.commit()
+                    return True
+                else:
+                    return False
+            else:
+                return False
+    elif typeOfOperation == "accept":
+        if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,
+                                                                              user2_id=userOperationIsExecutedOn .id).first() is None:
+            if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(
+                    user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).first() is not None:
+                addFriend(email, id)
+                db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).delete()
+                db.session.query(friends_requests).filter_by(user1_id=userOperationIsExecutedOn .id, user2_id=loggedUser.id).delete()
+
                 db.session.commit()
                 return True
             else:
                 return False
         else:
             return False
-
-def acceptFriendsRequest(email, id):
-    loggedUser = Users.query.filter_by(email=email).first()
-    userToBeAdded = Users.query.get(id)
-    if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,user2_id=userToBeAdded.id).first() is None:
-        if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).first() is not None:
-            addFriend(email, id)
-            db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).delete()
-            db.session.query(friends_requests).filter_by(user1_id=userToBeAdded.id, user2_id=loggedUser.id).delete()
-
-            db.session.commit()
-            return True
+    elif typeOfOperation == "decline":
+        if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,
+                                                                              user2_id=userOperationIsExecutedOn .id).first() is None:
+            if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(
+                    user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn .id).first() is not None:
+                db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userOperationIsExecutedOn.id).delete()
+                db.session.query(friends_requests).filter_by(user1_id=userOperationIsExecutedOn .id, user2_id=loggedUser.id).delete()
+                db.session.commit()
+                return True
+            else:
+                return False
         else:
             return False
     else:
-        return False
-
-def declineFriendsRequest(email, id):
-    loggedUser = Users.query.filter_by(email=email).first()
-    userToBeAdded = Users.query.get(id)
-    if db.session.query(friends.c.user1_id, friends.c.user2_id).filter_by(user1_id=loggedUser.id,user2_id=userToBeAdded.id).first() is None:
-        if db.session.query(friends_requests.c.user1_id, friends_requests.c.user2_id).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).first() is not None:
-            db.session.query(friends_requests).filter_by(user1_id=loggedUser.id, user2_id=userToBeAdded.id).delete()
-            db.session.query(friends_requests).filter_by(user1_id=userToBeAdded.id, user2_id=loggedUser.id).delete()
-            db.session.commit()
-            return True
-        else:
-            return False
-    else:
-        return False
+        return None
 
 def addFriend(email, id):
     loggedUser = Users.query.filter_by(email = email).first()
@@ -175,35 +181,38 @@ def getFriendsPropositions(email):
 
     return userObjectsList
 
-def getPendingRequestsToShow(email):
-    query = db.session.query(friends_requests.c.user2_id).filter((friends_requests.c.sent_by==email)&(friends_requests.c.user1_id==getUserId(email))).all()
-    db.session.commit()
+def getRequestsToShow(email, type):
+    if type == "sent":
+        query = db.session.query(friends_requests.c.user2_id).filter(
+            (friends_requests.c.sent_by != email) & (friends_requests.c.user1_id == getUserId(email))).all()
 
-    idsList = []
+        db.session.commit()
 
-    for i in range(len(query)):
-        idsList.append(query[i].user2_id)
+        idsList = []
 
-    userObjectsList = []
+        for i in range(len(query)):
+            idsList.append(query[i].user2_id)
 
-    for i in range(len(idsList)):
-        userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
+        userObjectsList = []
 
-    return userObjectsList
+        for i in range(len(idsList)):
+            userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
 
-def getSentRequestsToShow(email):
-    query = db.session.query(friends_requests.c.user2_id).filter((friends_requests.c.sent_by != email) & (friends_requests.c.user1_id == getUserId(email))).all()
+        return userObjectsList
+    elif type == "pending":
+        query = db.session.query(friends_requests.c.user2_id).filter((friends_requests.c.sent_by==email)&(friends_requests.c.user1_id==getUserId(email))).all()
+        db.session.commit()
 
-    db.session.commit()
+        idsList = []
 
-    idsList = []
+        for i in range(len(query)):
+            idsList.append(query[i].user2_id)
 
-    for i in range(len(query)):
-        idsList.append(query[i].user2_id)
+        userObjectsList = []
 
-    userObjectsList = []
+        for i in range(len(idsList)):
+            userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
 
-    for i in range(len(idsList)):
-        userObjectsList.append(Users.query.filter_by(id=idsList[i]).first())
-
-    return userObjectsList
+        return userObjectsList
+    else:
+        return None

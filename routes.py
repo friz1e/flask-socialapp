@@ -19,12 +19,11 @@ def registerPage():
 @routes.route('/mainPage')
 def mainPage():
     if session.get('email') != None:
-        from models import getUser, getFriendsPropositions, getPendingRequestsToShow, getSentRequestsToShow
-
+        from models import getUser, getFriendsPropositions, getRequestsToShow
         user = getUser(session.get('email'))
         friendsPropositions = getFriendsPropositions(session.get('email'))
-        friendsSentRequests = getSentRequestsToShow(session.get('email'))
-        friendsPendingRequests = getPendingRequestsToShow(session.get('email'))
+        friendsSentRequests = getRequestsToShow(session.get('email'), "sent")
+        friendsPendingRequests = getRequestsToShow(session.get('email'), "pending")
 
         return render_template('mainPage.html', friends = user.friends, pending_friends_requests = friendsPendingRequests, sent_friends_requests = friendsSentRequests, friends_propositions = friendsPropositions)
     else:
@@ -108,18 +107,18 @@ def addPost():
 @routes.route('/sendFriendsRequest/<id>')
 def sendFriendsRequest(id):
     if session.get('email') != None:
-            from models import sendFriendsRequest
-            sendFriendsRequest(session.get('email'), id)
-            return redirect(url_for('routes.mainPage'))
+        from models import friendsRequestOperations
+        friendsRequestOperations(session.get('email'), id, 'send')
+        return redirect(url_for('routes.mainPage'))
     else:
         return redirect(url_for('routes.loginPage'))
 
 @routes.route('/acceptFriendsRequest/<id>', methods=['GET'])
 def acceptFriendsRequest(id):
     if session.get('email') != None:
-        from models import acceptFriendsRequest
+        from models import friendsRequestOperations
         try:
-            if acceptFriendsRequest(session.get('email'), id):
+            if friendsRequestOperations(session.get('email'), id, 'accept'):
                 addFriend(session.get('email'), id)
                 return redirect(url_for('routes.mainPage'))
         except TypeError:
@@ -133,8 +132,8 @@ def acceptFriendsRequest(id):
 @routes.route('/declineFriendsRequest/<id>', methods=['GET'])
 def declineFriendsRequest(id):
     if session.get('email') != None:
-        from models import declineFriendsRequest
-        if declineFriendsRequest(session.get('email'), id):
+        from models import friendsRequestOperations
+        if friendsRequestOperations(session.get('email'), id, 'decline'):
             return redirect(url_for('routes.mainPage'))
         else:
             return redirect(url_for('routes.mainPage'))
