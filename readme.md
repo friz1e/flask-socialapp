@@ -18,10 +18,6 @@ Set the environment variable and run the Flask server in the cloned directory.
 python -m $env:FLASK_APP:"main"
 ```
 
-```bash
-python -m flask run
-```
-
 Then type "localhost:5000/loginPage" in your browser.
 
 ```bash
