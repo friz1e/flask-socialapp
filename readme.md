@@ -23,3 +23,7 @@ Then type "localhost:5000/loginPage" in your browser.
 ```bash
 localhost:5000/loginPage
 ```
+
+## Credentials ##
+**Email:** myemail@gmail.com </br>
+**Password:** password123
