@@ -1,6 +1,6 @@
 # flask-socialapp
 
-Flask-socialapp is a social application with functionalities like friends adding and posts creating. This project got written because I wanted to learn some new skills about Flask and SQLAlchemy usage. Project is still under development - it needs a lot of improvements.
+Flask-socialapp is a social application based on Facebook. This project got written to gain some experience in Flask and SQLAlchemy usage. Project is still under development - it needs a lot of safety improvements for example.
 
 ## Installation
 
